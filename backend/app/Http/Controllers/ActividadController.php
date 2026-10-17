@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Actividad;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache; // Importamos Cache para el Sprint 4
+use Illuminate\Support\Facades\Cache;
 
 class ActividadController extends Controller
 {
@@ -19,9 +19,7 @@ class ActividadController extends Controller
         return response()->json($query->get(), 200);
     }
 
-    // Sprint 4: Implementación de Caché para optimizar rendimiento
     public function stats() {
-        // Guarda las métricas en caché por 5 minutos para no saturar MongoDB
         $metricas = Cache::remember('dashboard_stats', 300, function () {
             $total = Actividad::count();
             $completadas = Actividad::where('estado', 'Completada')->count();
@@ -39,22 +37,39 @@ class ActividadController extends Controller
         return response()->json($metricas);
     }
 
+    // Sprint 5: Validación de reglas de negocio al crear actividad
     public function store(Request $request) {
-        $actividad = Actividad::create($request->all());
-        Cache::forget('dashboard_stats'); // Limpia el caché al agregar tarea
+        $datosValidados = $request->validate([
+            'titulo' => 'required|string|max:120',
+            'descripcion' => 'nullable|string',
+            'asignatura_id' => 'nullable|string',
+            'fecha_limite' => 'nullable|date',
+            'prioridad' => 'required|in:Baja,Media,Alta',
+            'estado' => 'required|in:Pendiente,En Proceso,Completada'
+        ]);
+
+        $actividad = Actividad::create($datosValidados);
+        Cache::forget('dashboard_stats');
         return response()->json($actividad, 201);
     }
 
+    // Sprint 5: Validación al actualizar estados o datos
     public function update(Request $request, $id) {
+        $datosValidados = $request->validate([
+            'titulo' => 'sometimes|required|string|max:120',
+            'prioridad' => 'sometimes|required|in:Baja,Media,Alta',
+            'estado' => 'sometimes|required|in:Pendiente,En Proceso,Completada'
+        ]);
+
         $actividad = Actividad::findOrFail($id);
-        $actividad->update($request->all());
-        Cache::forget('dashboard_stats'); // Limpia el caché al actualizar
+        $actividad->update($datosValidados);
+        Cache::forget('dashboard_stats');
         return response()->json($actividad, 200);
     }
 
     public function destroy($id) {
         Actividad::destroy($id);
-        Cache::forget('dashboard_stats'); // Limpia el caché al borrar
+        Cache::forget('dashboard_stats');
         return response()->json(null, 204);
     }
 }
