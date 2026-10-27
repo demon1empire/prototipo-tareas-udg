@@ -1,6 +1,6 @@
 <template>
   <div class="dashboard-container">
-    <h2>Dashboard y Filtros (Sprint 3)</h2>
+    <h2>Dashboard y Filtros (Sprint 6)</h2>
     
     <!-- Panel de Resumen HU-06 -->
     <div style="background: #f4f4f4; padding: 15px; margin-bottom: 20px;">
@@ -8,6 +8,9 @@
       <p><strong>Avance General:</strong> {{ metricas.avance }}%</p>
       <p><strong>Tareas Pendientes:</strong> {{ metricas.pendientes }}</p>
       <p><strong>Tareas Completadas:</strong> {{ metricas.completadas }}</p>
+      <button @click="descargarReporteCsv" style="margin-top: 10px; padding: 6px 12px; cursor: pointer;">
+        Exportar Reporte CSV
+      </button>
     </div>
 
     <!-- Buscador y Filtros HU-05 -->
@@ -48,6 +51,11 @@ const cargarActividades = async () => {
 const cargarMetricas = async () => {
   const respuesta = await axios.get(`${API_URL}/stats`);
   metricas.value = respuesta.data;
+};
+
+// Sprint 6: Descarga directa del reporte CSV
+const descargarReporteCsv = () => {
+  window.open(`${API_URL}/export/csv`, '_blank');
 };
 
 onMounted(() => {

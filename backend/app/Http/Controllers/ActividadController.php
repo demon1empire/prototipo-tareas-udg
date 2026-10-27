@@ -72,4 +72,23 @@ class ActividadController extends Controller
         Cache::forget('dashboard_stats');
         return response()->json(null, 204);
     }
+    // Sprint 6: Exportar listado de actividades académicas en formato CSV
+    public function exportCsv() {
+        $actividades = Actividad::all();
+        $csv = "\xEF\xBB\xBF"; // UTF-8 BOM para acentos correctos en Excel
+        $csv .= "Titulo,Prioridad,Estado,Fecha Limite\n";
+
+        foreach ($actividades as $act) {
+            $titulo = str_replace('"', '""', $act->titulo ?? '');
+            $prioridad = $act->prioridad ?? 'Media';
+            $estado = $act->estado ?? 'Pendiente';
+            $fecha = $act->fecha_limite ?? 'Sin fecha';
+            $csv .= "\"{$titulo}\",\"{$prioridad}\",\"{$estado}\",\"{$fecha}\"\n";
+        }
+
+        return response($csv, 200, [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="reporte_actividades_udg.csv"',
+        ]);
+    }
 }
