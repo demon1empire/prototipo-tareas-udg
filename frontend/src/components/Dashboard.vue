@@ -1,16 +1,27 @@
 <template>
-  <div class="dashboard-container">
-    <h2>Dashboard y Filtros (Sprint 6)</h2>
+  <div :class="['dashboard-container', { 'dark-mode': modoOscuro }]">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+      <h2>Dashboard y Filtros (Sprint 7)</h2>
+      <button @click="modoOscuro = !modoOscuro" style="padding: 6px 12px; cursor: pointer;">
+        {{ modoOscuro ? '☀️ Modo Claro' : '🌙 Modo Oscuro' }}
+      </button>
+    </div>
     
     <!-- Panel de Resumen HU-06 -->
-    <div style="background: #f4f4f4; padding: 15px; margin-bottom: 20px;">
+    <div class="panel-metricas">
       <h3>Métricas de Avance</h3>
       <p><strong>Avance General:</strong> {{ metricas.avance }}%</p>
       <p><strong>Tareas Pendientes:</strong> {{ metricas.pendientes }}</p>
       <p><strong>Tareas Completadas:</strong> {{ metricas.completadas }}</p>
-      <button @click="descargarReporteCsv" style="margin-top: 10px; padding: 6px 12px; cursor: pointer;">
-        Exportar Reporte CSV
-      </button>
+      
+      <div style="margin-top: 10px; display: flex; gap: 10px;">
+        <button @click="descargarReporteCsv" style="padding: 6px 12px; cursor: pointer;">
+          📊 Exportar Reporte CSV
+        </button>
+        <button @click="descargarCalendarioIcs" style="padding: 6px 12px; cursor: pointer;">
+          📅 Sincronizar Calendario (.ics)
+        </button>
+      </div>
     </div>
 
     <!-- Buscador y Filtros HU-05 -->
@@ -40,6 +51,7 @@ import axios from 'axios';
 const tareas = ref([]);
 const metricas = ref({ avance: 0, pendientes: 0, completadas: 0 });
 const filtros = ref({ buscar: '', estado: '' });
+const modoOscuro = ref(false);
 
 const API_URL = 'http://localhost:8000/api/actividades';
 
@@ -53,9 +65,13 @@ const cargarMetricas = async () => {
   metricas.value = respuesta.data;
 };
 
-// Sprint 6: Descarga directa del reporte CSV
 const descargarReporteCsv = () => {
   window.open(`${API_URL}/export/csv`, '_blank');
+};
+
+// Sprint 7: Descarga de archivo iCalendar (.ics)
+const descargarCalendarioIcs = () => {
+  window.open(`${API_URL}/export/ics`, '_blank');
 };
 
 onMounted(() => {
@@ -63,3 +79,26 @@ onMounted(() => {
   cargarMetricas();
 });
 </script>
+
+<style scoped>
+.dashboard-container {
+  padding: 20px;
+  background-color: #ffffff;
+  color: #222222;
+  transition: all 0.3s ease;
+}
+.panel-metricas {
+  background: #f4f4f4;
+  padding: 15px;
+  margin-bottom: 20px;
+  border-radius: 6px;
+}
+.dark-mode {
+  background-color: #1a202c;
+  color: #e2e8f0;
+}
+.dark-mode .panel-metricas {
+  background: #2d3748;
+  color: #f7fafc;
+}
+</style>

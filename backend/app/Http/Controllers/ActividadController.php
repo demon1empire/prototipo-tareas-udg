@@ -91,4 +91,32 @@ class ActividadController extends Controller
             'Content-Disposition' => 'attachment; filename="reporte_actividades_udg.csv"',
         ]);
     }
+    // Sprint 7: Exportar actividades en formato iCalendar (.ics) para Google Calendar
+    public function exportIcs() {
+        $actividades = Actividad::all();
+        $ics = "BEGIN:VCALENDAR\r\n";
+        $ics .= "VERSION:2.0\r\n";
+        $ics .= "PRODID:-//UDGVirtual//Prototipo Tareas Academicas//ES\r\n";
+
+        foreach ($actividades as $act) {
+            $titulo = $act->titulo ?? 'Tarea Academica';
+            $estado = $act->estado ?? 'Pendiente';
+            $prioridad = $act->prioridad ?? 'Media';
+            $fecha = !empty($act->fecha_limite) ? date('Ymd\THis\Z', strtotime($act->fecha_limite)) : date('Ymd\THis\Z');
+
+            $ics .= "BEGIN:VEVENT\r\n";
+            $ics .= "UID:" . ($act->_id ?? uniqid()) . "@prototipo-udg.local\r\n";
+            $ics .= "DTSTAMP:" . gmdate('Ymd\THis\Z') . "\r\n";
+            $ics .= "DTSTART:{$fecha}\r\n";
+            $ics .= "SUMMARY:[{$prioridad}] {$titulo} ({$estado})\r\n";
+            $ics .= "END:VEVENT\r\n";
+        }
+
+        $ics .= "END:VCALENDAR\r\n";
+
+        return response($ics, 200, [
+            'Content-Type' => 'text/calendar; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="calendario_tareas_udg.ics"',
+        ]);
+    }
 }
