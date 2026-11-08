@@ -45,13 +45,19 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, watch, onMounted } from 'vue';
 import axios from 'axios';
 
 const tareas = ref([]);
 const metricas = ref({ avance: 0, pendientes: 0, completadas: 0 });
 const filtros = ref({ buscar: '', estado: '' });
-const modoOscuro = ref(false);
+
+// Persistencia de Modo Oscuro en localStorage
+const modoOscuro = ref(localStorage.getItem('tema_oscuro_udg') === 'true');
+
+watch(modoOscuro, (nuevoValor) => {
+  localStorage.setItem('tema_oscuro_udg', nuevoValor);
+});
 
 const API_URL = 'http://localhost:8000/api/actividades';
 
@@ -69,7 +75,6 @@ const descargarReporteCsv = () => {
   window.open(`${API_URL}/export/csv`, '_blank');
 };
 
-// Sprint 7: Descarga de archivo iCalendar (.ics)
 const descargarCalendarioIcs = () => {
   window.open(`${API_URL}/export/ics`, '_blank');
 };

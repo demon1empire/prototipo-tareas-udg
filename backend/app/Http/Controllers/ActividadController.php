@@ -119,4 +119,13 @@ class ActividadController extends Controller
             'Content-Disposition' => 'attachment; filename="calendario_tareas_udg.ics"',
         ]);
     }
+    // Cierre de Proyecto (Release v1.0.0): Eliminar tareas completadas en un clic
+    public function clearCompleted() {
+        $eliminadas = Actividad::where('estado', 'Completada')->delete();
+        Cache::forget('dashboard_stats');
+        return response()->json([
+            'mensaje' => 'Actividades completadas archivadas/eliminadas correctamente',
+            'eliminadas' => $eliminadas
+        ], 200);
+    }
 }

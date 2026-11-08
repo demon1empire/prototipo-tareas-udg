@@ -8,18 +8,21 @@ Route::get('health', function () {
     return response()->json([
         'status' => 'ok',
         'servicio' => 'API Prototipo Tareas UDG',
-        'version' => '1.2.0-sprint7'
+        'version' => '1.0.0-release'
     ], 200);
 });
 
 // Ruta para las métricas del Dashboard
 Route::get('actividades/stats', [ActividadController::class, 'stats']);
 
-// Sprint 6: Ruta para exportar reporte de actividades en CSV
+// Ruta para exportar reporte de actividades en CSV
 Route::get('actividades/export/csv', [ActividadController::class, 'exportCsv']);
 
-// Sprint 7: Ruta para sincronizar calendario en formato iCalendar (.ics)
+// Ruta para sincronizar calendario en formato iCalendar (.ics)
 Route::get('actividades/export/ics', [ActividadController::class, 'exportIcs']);
+
+// Cierre de Proyecto: Limpiar actividades completadas
+Route::delete('actividades/clear/completed', [ActividadController::class, 'clearCompleted']);
 
 // Rutas estándar del CRUD
 Route::apiResource('actividades', ActividadController::class);
